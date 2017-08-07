@@ -9,6 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "nedb": "^1.8.0"
+    "docopt": "^0.6.2",
+    "htmlparser2": "^3.9.2",
+    "nedb": "^1.8.0",
+    "utils": "git+https://github.com/swadey/utils.git"
   }
 }
