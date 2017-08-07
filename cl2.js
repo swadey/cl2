@@ -1,12 +1,25 @@
 // ------------------------------------------------------------------------------------------------------------------
+// Imports
+// ------------------------------------------------------------------------------------------------------------------
+const _       = require('highland');
+const utils   = require('utils');
+const nedb    = require('nedb');
+const request = require('request');
+const FP      = require('feedparser');
+
+// ------------------------------------------------------------------------------------------------------------------
 // Utilities
 // ------------------------------------------------------------------------------------------------------------------
-const _     = require('highland');
-const utils = require('utils');
-const nedb  = require('nedb');
-const hp    = require('htmlparser2');
+function insert_data(db, data) {
+  db.insert( { url: data.url, time: Date.now() });
+}
 
-function process_line(l) {
+// parse
+function run_search(url, db) {
+  var req        = request(url);
+  var feedparser = new FP({ normalize : true });
+
+  _(req).through(feedparser).each(d => insert_data(db, d))
 }
 
 // ------------------------------------------------------------------------------------------------------------------
@@ -14,8 +27,7 @@ function process_line(l) {
 // ------------------------------------------------------------------------------------------------------------------
 db = new nedb({ filename: "cl-history.db", autoload: true, timestampData: true });
 db.ensureIndex({ fieldName: 'url' , unique: true }, (err) => {});
+db.loadDatabase();
 
-// parse
-//new htmlparser.FeedHandler(function(error, feed) {
-//  
-//});
+run_search("https://washingtondc.craigslist.org/search/cta?format=rss", db);
+

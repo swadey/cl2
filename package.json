@@ -10,8 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "docopt": "^0.6.2",
-    "htmlparser2": "^3.9.2",
+    "highland": "^2.11.1",
     "nedb": "^1.8.0",
+    "node-feedparser": "^1.0.1",
+    "request": "^2.81.0",
     "utils": "git+https://github.com/swadey/utils.git"
   }
 }
