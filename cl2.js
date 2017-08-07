@@ -11,15 +11,16 @@ const FP      = require('feedparser');
 // Utilities
 // ------------------------------------------------------------------------------------------------------------------
 function insert_data(db, data) {
-  db.insert( { url: data.url, time: Date.now() });
+  console.log(data.title);
+  db.insert( { url: data.url, time: Date.now() }, function(err, ds) {} );
 }
 
 // parse
 function run_search(url, db) {
   var req        = request(url);
-  var feedparser = new FP({ normalize : true });
+  var feedparser = new FP( { normalize : true } );
 
-  _(req).through(feedparser).each(d => insert_data(db, d))
+  _(req).through(feedparser).each(d => insert_data(db, d));
 }
 
 // ------------------------------------------------------------------------------------------------------------------
@@ -31,3 +32,4 @@ db.loadDatabase();
 
 run_search("https://washingtondc.craigslist.org/search/cta?format=rss", db);
 
+//db.close();
