@@ -11,6 +11,7 @@
   "dependencies": {
     "docopt": "^0.6.2",
     "highland": "^2.11.1",
+    "html-entities": "^1.2.1",
     "nedb": "^1.8.0",
     "node-feedparser": "^1.0.1",
     "nodemailer": "^4.0.1",
