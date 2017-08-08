@@ -13,6 +13,8 @@
     "highland": "^2.11.1",
     "nedb": "^1.8.0",
     "node-feedparser": "^1.0.1",
+    "nodemailer": "^4.0.1",
+    "querystring": "^0.2.0",
     "request": "^2.81.0",
     "utils": "git+https://github.com/swadey/utils.git"
   }
