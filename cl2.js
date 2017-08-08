@@ -100,14 +100,14 @@ function format_item(item) {
 
   try {
     let image = item["enc:enclosure"]["@"]["resource"];
-    item_text += `<div class="span1"><img class="img-polaroid" style="max-width:100%;max-height:100%;" src=${image}></img></div>\n`;
+    item_text += `<div class="span2"><img class="img-polaroid" style="max-width:100%;max-height:100%;" src=${image}></img></div>\n`;
   }
   catch (e) {
-    item_text += `<div class="span1"></div>\n`;
+    item_text += `<div class="span2"></div>\n`;
   }
 
   item_text += `
-<div class="span11 offset1">
+<div class="span10 offset2">
   <a href="${item.link}">${entities.decode(item.title)}</a>
   <p>${entities.decode(item.description)}</p>
 </div>\n`;
@@ -134,12 +134,22 @@ db.loadDatabase();
 async function main(recipient, user, password) {
   for (let query of queries) {
     let message = `
-<html>
-<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<body>
-<div class="container-fluid">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  </head>
+  <body>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+  <div class="container-fluid">
 `;
     console.log("------------------------------------------------------------------------------------------------------------");
     console.log("Searching for " + query);
@@ -168,7 +178,6 @@ async function main(recipient, user, password) {
     if (n > 0) {
       send_email({ body: message, to: recipient, from: recipient, subject: `Results from: ${query}` },
                  { user: user, password: password });
-      throw "fuck";
     }
   }
 }
