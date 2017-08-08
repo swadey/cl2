@@ -7,8 +7,9 @@ const nedb     = require('nedb');
 const request  = require('request');
 const FP       = require('feedparser');
 const qs       = require('querystring');
-const mail     = require('nodemailer');
-const entities = require('html-entities');
+const mailer   = require('nodemailer');
+const Entities = require('html-entities').XmlEntities;
+const entities = new Entities();
 
 // ------------------------------------------------------------------------------------------------------------------
 // Queries
@@ -68,17 +69,17 @@ async function process_feed(db, items) {
   return new_items.filter(x => x != null);
 }
 
-function send_email({ body, subject, to, from } = {}, {user, password, server, port} = { server: smtp.gmail.com, port: 587 }) {
-  let transporter = nodemailer.createTransport({
-    host   : server,
-    port   : port,
-    secure : true,
-    auth   : {
+function send_email({ body, subject, to, from } = {}, {user, password} = {}, server = "smtp.gmail.com", port = 587) {
+  let transporter = mailer.createTransport({
+    host: server,
+    port: port,
+    secure: false,
+    requireTLS: true,
+    auth: {
       user: user,
       pass: password
     }
   });
-  
   let mailOptions = {
     from    : from,
     to      : to,
@@ -96,16 +97,18 @@ function send_email({ body, subject, to, from } = {}, {user, password, server, p
 
 function format_item(item) {
   let item_text = `<div class="row-fluid">\n`;
-  let image     = item["enc:enclosure"]["@"]["resource"];
 
-  if (image === undefined)
-    item_text += `<div class="row-fluid">\n`;
-  else
+  try {
+    let image = item["enc:enclosure"]["@"]["resource"];
     item_text += `<div class="span1"><img class="img-polaroid" style="max-width:100%;max-height:100%;" src=${image}></img></div>\n`;
+  }
+  catch (e) {
+    item_text += `<div class="span1"></div>\n`;
+  }
 
   item_text += `
-<div class="span11">
-  <a href=${item.source}>${entities.decode(item.title)}</a>
+<div class="span11 offset1">
+  <a href="${item.link}">${entities.decode(item.title)}</a>
   <p>${entities.decode(item.description)}</p>
 </div>\n`;
   return item_text + "</div>\n";
@@ -129,17 +132,19 @@ db.loadDatabase();
 // Main
 // ------------------------------------------------------------------------------------------------------------------
 async function main(recipient, user, password) {
-  let message = `
-<html>
-<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
-<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-`;
   for (let query of queries) {
+    let message = `
+<html>
+<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body>
+<div class="container-fluid">
+`;
     console.log("------------------------------------------------------------------------------------------------------------");
     console.log("Searching for " + query);
     console.log("------------------------------------------------------------------------------------------------------------");
+    var n = 0;
 
     for (let url of urls) {
       let city      = url.replace(UrlPattern, "$1");
@@ -151,16 +156,21 @@ async function main(recipient, user, password) {
         message += "<hr>\n";
       }
       for (let x of new_items) {
-        console.log(x.title);
-        insert_data(x);
+        //console.log(x);
+        insert_data(db, x);
         // format HTML
         let item_text = format_item(x);
         message += item_text;
       }
+      n += new_items.length;
+    }
+    message += "</div></body></html>\n";
+    if (n > 0) {
+      send_email({ body: message, to: recipient, from: recipient, subject: `Results from: ${query}` },
+                 { user: user, password: password });
+      throw "fuck";
     }
   }
-  message += "</html>\n";
-  send_email({ body: message, to: recipient, from: recipient, subject: `Results from: ${city}` }, { user: user, password: password });
 }
 
 const doc  = `
@@ -168,10 +178,10 @@ Usage:
   cl2.js (--user=X) (--password=Y) (--recipient=Z)
 
 Options:
-  -u, --user         username
-  -p, --password     password
-  -r, --recipient    email address
+  -u, --user=X         username
+  -p, --password=Y     password
+  -r, --recipient=Z    email address
 `;
 const opts = utils.docopt(doc);
 
-main();
+main(opts["--recipient"], opts["--user"], opts["--password"]);
