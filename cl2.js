@@ -133,7 +133,7 @@ async function main(recipient, user, password) {
 <html>
 <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
 <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 `;
   for (let query of queries) {
@@ -162,5 +162,16 @@ async function main(recipient, user, password) {
   message += "</html>\n";
   send_email({ body: message, to: recipient, from: recipient, subject: `Results from: ${city}` }, { user: user, password: password });
 }
+
+const doc  = `
+Usage:
+  cl2.js (--user=X) (--password=Y) (--recipient=Z)
+
+Options:
+  -u, --user         username
+  -p, --password     password
+  -r, --recipient    email address
+`;
+const opts = utils.docopt(doc);
 
 main();
