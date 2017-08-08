@@ -9,6 +9,7 @@ const FP       = require('feedparser');
 const qs       = require('querystring');
 const mailer   = require('nodemailer');
 const Entities = require('html-entities').XmlEntities;
+const config   = require('config');
 const entities = new Entities();
 
 // ------------------------------------------------------------------------------------------------------------------
@@ -131,7 +132,7 @@ db.loadDatabase();
 // ------------------------------------------------------------------------------------------------------------------
 // Main
 // ------------------------------------------------------------------------------------------------------------------
-async function main(recipient, user, password) {
+async function main(conf) {
   for (let query of queries) {
     let message = `
 <!DOCTYPE html>
@@ -147,7 +148,7 @@ async function main(recipient, user, password) {
   </head>
   <body>
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script> -->
 
   <div class="container-fluid">
 `;
@@ -176,21 +177,26 @@ async function main(recipient, user, password) {
     }
     message += "</div></body></html>\n";
     if (n > 0) {
-      send_email({ body: message, to: recipient, from: recipient, subject: `Results from: ${query}` },
-                 { user: user, password: password });
+      send_email({ body: message, to: conf.to, from: conf.from, subject: `Results from: ${query}` },
+                 { user: conf.user, password: conf.password });
     }
   }
 }
 
 const doc  = `
 Usage:
-  cl2.js (--user=X) (--password=Y) (--recipient=Z)
+  cl2.js [ --password=X | --recipient=Y | --user=X ]
 
 Options:
   -u, --user=X         username
   -p, --password=Y     password
-  -r, --recipient=Z    email address
+  -t, --to=Z           email address
 `;
 const opts = utils.docopt(doc);
+//const conf = config.get();
 
-main(opts["--recipient"], opts["--user"], opts["--password"]);
+for (k in Object.keys(opts))
+  if (k !== "--config")
+    config[k] = opts[k]
+
+main(config);
