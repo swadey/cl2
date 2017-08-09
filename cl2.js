@@ -15,40 +15,89 @@ const entities = new Entities();
 // ------------------------------------------------------------------------------------------------------------------
 // Queries
 // ------------------------------------------------------------------------------------------------------------------
-const min = 600;
-const max = 7000;
+const footer = "</div></body></html>\n";
+const header = `
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  </head>
+  <body>
+    <!-- Latest compiled and minified JavaScript -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script> -->
 
-const urls = [ "https://boston.craigslist.org/search/cta",
-               "https://sfbay.craigslist.org/search/cta",
-               "https://seattle.craigslist.org/search/cta",
-               "https://la.craigslist.org/search/cta", //
-               "https://nh.craigslist.org/search/cta", //
-               "https://maine.craigslist.org/search/cta", //
-               "https://providence.craigslist.org/search/cta",
-               "https://washingtondc.craigslist.org/search/cta",
-               "https://baltimore.craigslist.org/search/cta", //
-               "https://monterey.craigslist.org/search/cta"
-               //"https://mendocino.craigslist.org/search/cta",
-             ];
-const UrlPattern = /^https:\/\/(.*)\.craigslist\.org.*$/
-const queries = [ "subaru turbo",
-                  "subaru xt",
-                  "subaru wrx",
-                  "subaru legacy gt",
-                  "saab (92-x|92x)",
-                  //"miata (mazdaspeed|turbo)",
-                  //"mr2 turbo",
-                  // "miata",
-                  // "bmw (330xi|325xi)",
-                  // "bmw (525xi|535xi|530xi)",
-                  //"audi s4",
-                  "acura nsx",
-                  // "audi tt",
-                   // "porsche",
-                  // "mini cooper",
-                  // "bmw (635csi|m6)",
-                  "bmw (m3|m5) convertible"
-                ];
+  <div class="container-fluid">
+`;
+
+// ------------------------------------------------------------------------------------------------------------------
+// Queries
+// ------------------------------------------------------------------------------------------------------------------
+const UrlPattern = /^https:\/\/(.*)\.craigslist\.org.*$/;
+const auto_search = {
+  min: 600,
+  max: 7000,
+  urls: [ "https://boston.craigslist.org/search/cta",
+          "https://sfbay.craigslist.org/search/cta",
+          "https://seattle.craigslist.org/search/cta",
+          "https://la.craigslist.org/search/cta", //
+          "https://nh.craigslist.org/search/cta", //
+          "https://maine.craigslist.org/search/cta", //
+          "https://providence.craigslist.org/search/cta",
+          "https://washingtondc.craigslist.org/search/cta",
+          "https://baltimore.craigslist.org/search/cta", //
+          "https://monterey.craigslist.org/search/cta"
+          //"https://mendocino.craigslist.org/search/cta",
+        ],
+  queries: [ "subaru turbo",
+             "subaru xt",
+             "subaru wrx",
+             "subaru legacy gt",
+             "saab (92-x|92x)",
+             //"miata (mazdaspeed|turbo)",
+             //"mr2 turbo",
+             // "miata",
+             // "bmw (330xi|325xi)",
+             // "bmw (525xi|535xi|530xi)",
+             //"audi s4",
+             "acura nsx",
+             // "audi tt",
+             // "porsche",
+             // "mini cooper",
+             // "bmw (635csi|m6)",
+             //"bmw (m3|m5) convertible"
+           ]
+};
+const bike_search = {
+  min: 50,
+  max: 250,
+  urls: [ "https://boston.craigslist.org/search/bia",
+          "https://capecod.craigslist.org/search/bia",
+          "https://washingtondc.craigslist.org/search/bia"
+        ],
+  queries: [ "cannondale -kids -girls -boys",
+             "specialized -kids -girls -boys",
+             "marin -kids -girls -boys",
+             "trek -kids -girls -boys",
+             "giant -kids -girls -boys",
+             "(fairdale|surly|novara) -kids -girls -boys",
+             "(brompton|dahon|montague|tern|strida)"
+           ]
+};
+const parking_search = {
+  min: 50,
+  max: 200,
+  urls: [ "https://boston.craigslist.org/search/prk",
+          "https://nh.craigslist.org/search/prk"
+        ],
+  queries: [ "garage"
+           ]
+};
 
 // ------------------------------------------------------------------------------------------------------------------
 // Utilities
@@ -130,36 +179,19 @@ db.ensureIndex({ fieldName: 'url' , unique: true }, (err) => {});
 db.loadDatabase();
 
 // ------------------------------------------------------------------------------------------------------------------
-// Main
+// Searches
 // ------------------------------------------------------------------------------------------------------------------
-async function main(conf) {
-  for (let query of queries) {
-    let message = `
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-  </head>
-  <body>
-    <!-- Latest compiled and minified JavaScript -->
-    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script> -->
-
-  <div class="container-fluid">
-`;
+async function query(q, conf) {
+  for (let query of q.queries) {
+    let message = header;
     console.log("------------------------------------------------------------------------------------------------------------");
     console.log("Searching for " + query);
     console.log("------------------------------------------------------------------------------------------------------------");
     var n = 0;
 
-    for (let url of urls) {
+    for (let url of q.urls) {
       let city      = url.replace(UrlPattern, "$1");
-      let res       = await run_search(url, { query : query, min_price : min, max_price : max, format : "rss" });
+      let res       = await run_search(url, { query : query, min_price : q.min, max_price : q.max, format : "rss", srchType: "T" });
       let new_items = await process_feed(db, res);
 
       if (new_items.length > 0) {
@@ -167,15 +199,13 @@ async function main(conf) {
         message += "<hr>\n";
       }
       for (let x of new_items) {
-        //console.log(x);
         insert_data(db, x);
-        // format HTML
         let item_text = format_item(x);
         message += item_text;
       }
       n += new_items.length;
     }
-    message += "</div></body></html>\n";
+    message += footer;
     if (n > 0) {
       send_email({ body: message, to: conf.to, from: conf.from, subject: `Results from: ${query}` },
                  { user: conf.user, password: conf.password });
@@ -183,6 +213,9 @@ async function main(conf) {
   }
 }
 
+// ------------------------------------------------------------------------------------------------------------------
+// Main
+// ------------------------------------------------------------------------------------------------------------------
 const doc  = `
 Usage:
   cl2.js [ --password=X | --recipient=Y | --user=X ]
@@ -199,4 +232,6 @@ for (k in Object.keys(opts))
   if (k !== "--config")
     config[k] = opts[k]
 
-main(config);
+query(auto_search, config);
+query(bike_search, config);
+query(parking_search, config);
