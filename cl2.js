@@ -39,6 +39,8 @@ const header = `
 // Queries
 // ------------------------------------------------------------------------------------------------------------------
 const UrlPattern = /^https:\/\/(.*)\.craigslist\.org.*$/;
+const bike_qualifier = " -kid -kids -youth -boy -girl -mountain -hardrock -child -hard -rock -boys -girls";
+
 const auto_search = {
   min: 600,
   max: 7000,
@@ -80,13 +82,13 @@ const bike_search = {
           "https://capecod.craigslist.org/search/bia",
           "https://washingtondc.craigslist.org/search/bia"
         ],
-  queries: [ "cannondale -kids -girls -boys",
-             "specialized -kids -girls -boys",
-             "marin -kids -girls -boys",
-             "trek -kids -girls -boys",
-             "giant -kids -girls -boys",
-             "(fairdale|surly|novara) -kids -girls -boys",
-             "(brompton|dahon|montague|tern|strida)"
+  queries: [ "cannondale" + bike_qualifier,
+             "specialized" + bike_qualifier,
+             "marin" + bike_qualifier,
+             "trek" + bike_qualifier,
+             "giant" + bike_qualifier,
+             "(fairdale|surly|novara)" + bike_qualifier,
+             "(brompton|dahon|montague|tern|strida)" + bike_qualifier,
            ]
 };
 const parking_search = {
