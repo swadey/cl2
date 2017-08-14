@@ -39,7 +39,7 @@ const header = `
 // Queries
 // ------------------------------------------------------------------------------------------------------------------
 const UrlPattern = /^https:\/\/(.*)\.craigslist\.org.*$/;
-const bike_qualifier = " -kid -kids -youth -boy -girl -mountain -hardrock -child -hard -rock -boys -girls";
+const bike_qualifier = " -kid* -youth -boy* -girl* -mountain -hard* -child* -hotrock";
 
 const auto_search = {
   min: 600,
