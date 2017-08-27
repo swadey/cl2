@@ -78,8 +78,8 @@ const auto_search = {
 const bike_search = {
   min: 50,
   max: 250,
-  urls: [ "https://boston.craigslist.org/search/bia",
-          "https://capecod.craigslist.org/search/bia",
+  urls: [ //"https://boston.craigslist.org/search/bia",
+          //"https://capecod.craigslist.org/search/bia",
           "https://washingtondc.craigslist.org/search/bia"
         ],
   queries: [ "cannondale" + bike_qualifier,
