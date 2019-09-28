@@ -44,23 +44,26 @@ const bike_qualifier = " -kid* -youth -boy* -girl* -mountain -hard* -child* -hot
 const auto_search = {
   min: 600,
   max: 7000,
-  urls: [ "https://boston.craigslist.org/search/cta",
-          "https://sfbay.craigslist.org/search/cta",
+  trans: 1,
+  urls: [ //"https://boston.craigslist.org/search/cta",
+          //"https://sfbay.craigslist.org/search/cta",
           "https://seattle.craigslist.org/search/cta",
-          "https://la.craigslist.org/search/cta", //
-          "https://nh.craigslist.org/search/cta", //
-          "https://maine.craigslist.org/search/cta", //
-          "https://providence.craigslist.org/search/cta",
-          "https://washingtondc.craigslist.org/search/cta",
-          "https://baltimore.craigslist.org/search/cta", //
-          "https://monterey.craigslist.org/search/cta"
-          //"https://mendocino.craigslist.org/search/cta",
+          //"https://la.craigslist.org/search/cta", //
+          //"https://nh.craigslist.org/search/cta", //
+          //"https://maine.craigslist.org/search/cta", //
+          //"https://providence.craigslist.org/search/cta",
+          //"https://washingtondc.craigslist.org/search/cta",
+          //"https://baltimore.craigslist.org/search/cta", //
+          //"https://monterey.craigslist.org/search/cta",
+          "https://pdx.craigslist.org/search/cta"
         ],
   queries: [ "subaru turbo",
              "subaru xt",
-             "subaru wrx",
+             //"subaru wrx",
              "subaru legacy gt",
-             "saab (92-x|92x)",
+             //"saab (92-x|92x)",
+             //"toyota matrix awd",
+             //"toyota sienna awd",
              //"miata (mazdaspeed|turbo)",
              //"mr2 turbo",
              // "miata",
@@ -80,13 +83,13 @@ const bike_search = {
   max: 250,
   urls: [ //"https://boston.craigslist.org/search/bia",
           //"https://capecod.craigslist.org/search/bia",
-          "https://washingtondc.craigslist.org/search/bia"
+          //"https://washingtondc.craigslist.org/search/bia"
         ],
-  queries: [ "cannondale" + bike_qualifier,
-             "specialized" + bike_qualifier,
-             "marin" + bike_qualifier,
-             "trek" + bike_qualifier,
-             "giant" + bike_qualifier,
+  queries: [ //"cannondale" + bike_qualifier,
+             //"specialized" + bike_qualifier,
+             //"marin" + bike_qualifier,
+             //"trek" + bike_qualifier,
+             //"giant" + bike_qualifier,
              "(fairdale|surly|novara)" + bike_qualifier,
              "(brompton|dahon|montague|tern|strida)" + bike_qualifier,
            ]
@@ -94,8 +97,8 @@ const bike_search = {
 const parking_search = {
   min: 50,
   max: 200,
-  urls: [ "https://boston.craigslist.org/search/prk",
-          "https://nh.craigslist.org/search/prk"
+  urls: [ //"https://boston.craigslist.org/search/prk",
+          //"https://nh.craigslist.org/search/prk"
         ],
   queries: [ "garage"
            ]
@@ -193,7 +196,7 @@ async function query(q, conf) {
 
     for (let url of q.urls) {
       let city      = url.replace(UrlPattern, "$1");
-      let res       = await run_search(url, { query : query, min_price : q.min, max_price : q.max, format : "rss", srchType: "T" });
+      let res       = await run_search(url, { query : query, min_price : q.min, max_price : q.max, auto_transmission: q.trans, min_auto_year: '2002', format : "rss", srchType: "T" });
       let new_items = await process_feed(db, res);
 
       if (new_items.length > 0) {
