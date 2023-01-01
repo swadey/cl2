@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "config": "^1.31.0",
+    "config": "^3.3.8",
     "docopt": "^0.6.2",
     "highland": "^2.13.0",
     "html-entities": "^1.2.1",
